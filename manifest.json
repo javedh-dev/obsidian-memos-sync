@@ -3,7 +3,7 @@
 	"name": "Obsidian Memos Sync",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "An Obsidian plugin to sync memos notes into obsidian",
+	"description": "Syncs [memos](https://usememos.com) notes into obsidian",
 	"author": "Javed Hussain",
 	"authorUrl": "https://bytedge.in",
 	"isDesktopOnly": false
