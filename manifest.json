@@ -1,11 +1,10 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "obsidian-memos-sync",
+	"name": "Obsidian Memos Sync",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "An Obsidian plugin to sync memos notes into obsidian",
+	"author": "Javed Hussain",
+	"authorUrl": "https://bytedge.in",
 	"isDesktopOnly": false
 }
