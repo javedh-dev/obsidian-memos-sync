@@ -1,7 +1,7 @@
 {
 	"id": "memos-sync",
 	"name": "OM Sync",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"minAppVersion": "1.7.7",
 	"description": "Syncs memos notes and resources to vault",
 	"author": "Javed Hussain",
