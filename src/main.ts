@@ -1,3 +1,4 @@
+import axios from "axios";
 import moment from "moment";
 import {
 	addIcon,
@@ -7,13 +8,14 @@ import {
 	PluginSettingTab,
 	Setting,
 } from "obsidian";
-import { OMSyncService } from "sync";
+import { findUser, OMSyncService } from "sync";
 import { OMSyncPluginSettings } from "types";
 
 const DEFAULT_SETTINGS: OMSyncPluginSettings = {
 	url: "",
 	token: "",
 	userId: "",
+	userName: "",
 	notesFolder: "memos",
 	attachmentsFolder: "attachments",
 	lastSync: 0,
@@ -26,35 +28,58 @@ export default class OMSyncPlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-		this.syncService = new OMSyncService(this.settings, this.app.vault);
-		this.statusBarItemEl = this.addStatusBarItem();
-		this.refreshStatusBar();
 
-		this.addRibbonIcon(
-			"refresh-ccw-dot",
-			"Sync Memos",
-			(evt: MouseEvent) => {
-				this.performSync();
-			},
-		);
+		if (
+			!this.settings.url ||
+			!this.settings.token ||
+			!this.settings.userName
+		) {
+			new Notice("OM Sync: Please add config in settings");
+		} else {
+			this.syncService = new OMSyncService(this.settings, this.app.vault);
+			this.statusBarItemEl = this.addStatusBarItem();
+			this.refreshStatusBar();
+			this.updateUser();
 
-		this.addCommand({
-			id: "sync-memos",
-			name: "Sync Memos",
-			callback: () => {
+			this.addRibbonIcon("feather", "Sync Memos", (evt: MouseEvent) => {
 				this.performSync();
-			},
-		});
+			});
+
+			this.addCommand({
+				id: "sync-memos",
+				name: "Sync Memos",
+				callback: () => {
+					this.performSync();
+				},
+			});
+		}
 
 		this.addSettingTab(new OMSyncSettingTab(this.app, this));
 	}
+	async updateUser() {
+		if (this.settings.userId == "") {
+			findUser(this.settings)
+				.then((response) => {
+					const users = response.data.users;
+					if (users.length != 1) {
+						new Notice("OM Sync :Invalid Username.!!!");
+					} else {
+						this.settings.userId = `users/${users[0].id}`;
+						this.saveSettings();
+					}
+				})
+				.catch((error) => {
+					console.error("OM Sync : ", error);
+				});
+		}
+	}
 
 	async performSync() {
-		new Notice("Starting Memos Sync...");
+		new Notice("OM Sync: Started syncing...");
 		await this.syncService.syncData();
 		this.saveSettings();
 		this.refreshStatusBar();
-		new Notice("Memos Sync completed!");
+		new Notice("OM Sync: Synced successfully!!!");
 	}
 
 	onunload() {}
@@ -69,7 +94,7 @@ export default class OMSyncPlugin extends Plugin {
 
 	async refreshStatusBar() {
 		this.statusBarItemEl.setText(
-			`Memos Synced: ${moment(new Date(this.settings.lastSync)).fromNow()}`,
+			`OM Sync: Synced ${moment(new Date(this.settings.lastSync)).fromNow()}`,
 		);
 	}
 
@@ -118,20 +143,20 @@ class OMSyncSettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("User Id")
-			.setDesc("The Id of the user with token defined above")
+			.setName("Username")
+			.setDesc("Username of the user with token defined above")
 			.addText((text) =>
 				text
-					.setPlaceholder("users/{uid}")
-					.setValue(this.plugin.settings.userId)
+					.setPlaceholder("john-doe")
+					.setValue(this.plugin.settings.userName)
 					.onChange(async (value) => {
-						this.plugin.settings.userId = value;
-						await this.plugin.saveSettings();
+						this.plugin.settings.userName = value;
+						await this.plugin.updateUser();
 					}),
 			);
 
 		new Setting(containerEl)
-			.setName("Memos Folder")
+			.setName("Notes Folder")
 			.setDesc("The folder where all memos will be saved")
 			.addText((text) =>
 				text

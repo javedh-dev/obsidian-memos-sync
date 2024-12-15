@@ -1,14 +1,15 @@
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import {
 	Memo,
 	MemosResponse,
 	OMSyncPluginSettings,
 	Resource,
 	ResourcesResponse,
+	User,
+	UsersResponse,
 } from "types";
 import mime from "mime";
 import { TFile, Vault } from "obsidian";
-import { createHash } from "crypto";
 
 export class OMSyncService {
 	settings: OMSyncPluginSettings;
@@ -46,17 +47,17 @@ export class OMSyncService {
 				this.syncMemos(response.data.nextPageToken);
 			}
 		} catch (error) {
-			console.error("Error:", error);
+			console.error("OM Sync: ", error);
 		}
 	}
 
 	private async filterAndPersistMemos(memos: Memo[]): Promise<boolean> {
-		console.log("Memos : ", memos);
 		memos = memos.filter((memo) => {
 			const resourceDate = new Date(Date.parse(memo.updateTime));
 			const lastSyncDate = new Date(this.settings.lastSync);
 			return resourceDate > lastSyncDate;
 		});
+		console.log("OM Sync: Memos ", memos);
 		for (const memo of memos) {
 			const memoContent = memo.content;
 			const fileName = memo.name.replace("/", "-");
@@ -82,7 +83,7 @@ export class OMSyncService {
 			const response = await axios.request<ResourcesResponse>(options);
 			await this.filterAndPersistResources(response.data.resources);
 		} catch (error) {
-			console.error("Error:", error);
+			console.error("OM Sync: ", error);
 		}
 	}
 
@@ -92,7 +93,7 @@ export class OMSyncService {
 			const lastSyncDate = new Date(this.settings.lastSync);
 			return resourceDate > lastSyncDate;
 		});
-		console.log("Resources : ", resources);
+		console.log("OM Sync: Resources ", resources);
 		for (const resource of resources) {
 			const fileData = await this.readFileData(resource);
 			const fileName = this.getFileName(resource);
@@ -109,7 +110,10 @@ export class OMSyncService {
 		const memoPath = `${this.settings.notesFolder}/${memo.replace("/", "-")}.md`;
 		const memoFile = this.vault.getFileByPath(memoPath);
 		if (!memoFile) {
-			console.error("Couldn't find memo at given path : ", memoPath);
+			console.error(
+				"OM Sync: Couldn't find memo at given path - ",
+				memoPath,
+			);
 		} else {
 			await this.vault.append(memoFile, `\n\n![[${persistedFile.name}]]`);
 		}
@@ -143,7 +147,24 @@ export class OMSyncService {
 	}
 
 	private hashFunction(input: string): string {
-		const hash = createHash("md5").update(input).digest("hex");
-		return hash.substring(0, 5);
+		let hash = 0;
+		for (let i = 0; i < input.length; i++) {
+			hash = (hash << 5) - hash + input.charCodeAt(i);
+			hash = hash | 0; // Convert to 32bit integer
+		}
+		return Math.abs(hash).toString(36).substring(0, 5);
 	}
 }
+
+export const findUser = (
+	settings: OMSyncPluginSettings,
+): Promise<AxiosResponse<UsersResponse>> => {
+	return axios.get<UsersResponse>(`${settings.url}/api/v1/users:search`, {
+		headers: {
+			Authorization: `Bearer ${settings.token}`,
+		},
+		params: {
+			filter: `username=='${settings.userName}'`,
+		},
+	});
+};

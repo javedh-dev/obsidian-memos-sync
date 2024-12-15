@@ -2,6 +2,7 @@ export interface OMSyncPluginSettings {
 	url: string;
 	token: string;
 	userId: string;
+	userName: string;
 	notesFolder: string;
 	attachmentsFolder: string;
 	lastSync: number;
@@ -23,6 +24,15 @@ export interface Memo {
 	updateTime: string;
 	memo: string;
 	type: string;
+}
+
+export interface User {
+	name: string;
+	id: number;
+}
+
+export interface UsersResponse {
+	users: User[];
 }
 
 export interface MemosResponse {
