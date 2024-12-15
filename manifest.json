@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-memos-sync",
 	"name": "OM Sync",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"minAppVersion": "1.7.7",
 	"description": "Syncs [memos](https://usememos.com) notes into obsidian",
 	"author": "Javed Hussain",
