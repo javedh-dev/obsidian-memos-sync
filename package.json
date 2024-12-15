@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-memos-sync",
+	"name": "-memos-sync",
 	"version": "1.0.3",
-	"description": "An Obsidian plugin to sync memos notes into obsidian",
+	"description": "Syncs memos notes and resources to vault",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
