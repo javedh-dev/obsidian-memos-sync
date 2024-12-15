@@ -1,9 +1,9 @@
 {
-	"id": "memos-sync",
+	"id": "memos-temporal-sync",
 	"name": "OM Sync",
-	"version": "1.0.4",
+	"version": "1.0.5",
 	"minAppVersion": "1.7.7",
-	"description": "Syncs memos notes and resources to vault",
+	"description": "Syncs memos notes and resources based on the sync time",
 	"author": "Javed Hussain",
 	"authorUrl": "https://bytedge.in",
 	"isDesktopOnly": false

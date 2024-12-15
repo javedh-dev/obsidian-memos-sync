@@ -1,6 +1,6 @@
 {
-	"name": "-memos-sync",
-	"version": "1.0.4",
+	"name": "memos-temporal-sync",
+	"version": "1.0.5",
 	"description": "Syncs memos notes and resources to vault",
 	"main": "main.js",
 	"scripts": {
